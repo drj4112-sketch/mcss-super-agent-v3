@@ -4,7 +4,32 @@ import { useState, useEffect, useCallback, useRef } from "react";
 const DEFAULT_ASSETS = [
   {symbol:"XAU",  label:"Gold",     emoji:"🥇",color:"#fbbf24",type:"forex"},
   {symbol:"BTC",  label:"Bitcoin",  emoji:"₿", color:"#f7931a",type:"crypto"},
-  {symbol:"ETH",  label:"Ethereum", emoji:"⟠", color:"#627eea",type:"crypto"},
+  {symbol:"ETH",  label:"E/** @type {import('next').NextConfig} */
+const nextConfig = {};
+module.exports = nextConfig;
+
+{
+  "name": "mcss-super-agent-v3",
+  "version": "3.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "15.3.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  }
+}
+
+{
+  "framework": "nextjs",
+  "buildCommand": "next build",
+  "installCommand": "npm install"
+}
+thereum", emoji:"⟠", color:"#627eea",type:"crypto"},
   {symbol:"SOL",  label:"Solana",   emoji:"◎", color:"#9945ff",type:"crypto"},
   {symbol:"XRP",  label:"XRP",      emoji:"✕", color:"#00aae4",type:"crypto"},
   {symbol:"HBAR", label:"HBAR",     emoji:"ℏ", color:"#00c6a2",type:"crypto"},
