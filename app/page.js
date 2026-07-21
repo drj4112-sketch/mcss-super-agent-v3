@@ -573,7 +573,7 @@ export default function Home(){
                   <div style={{fontSize:13,fontWeight:900,color:scalpData.isValid?"#22c55e":"#ef4444"}}>
                     {scalpData.isValid?"✅ "+scalpData.direction+" SCALP SETUP":"❌ NO SCALP SETUP"}
                   </div>
-                  <div style={{fontSize:9,color:"#334155",marginTop:4}}>Score: {scalpData.score}/5 · {asset.label}</div>
+                  <div style={{fontSize:9,color:"#334155",marginTop:4}}>Score: {scalpData.score}/5 · {scalpData.symbol} · {scalpData.source}</div>
                 </div>
 
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
