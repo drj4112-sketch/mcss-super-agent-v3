@@ -141,6 +141,7 @@ export default function Home(){
   const [log,setLog]=useState([]);
 
   // Scalp state
+  const [scalpAsset, setScalpAsset]=useState(DEFAULT_ASSETS[1]); // Default to BTC
   const [scalpData,setScalp]=useState(null);
   const [scalpStatus,setScalpS]=useState("idle");
 
@@ -161,6 +162,7 @@ export default function Home(){
   const [pulseS,setPulseS]=useState("idle");
 
   // News state
+  const [newsAsset, setNewsAsset]=useState(DEFAULT_ASSETS[1]); // Default BTC
   const [news,setNews]=useState(null);
   const [newsS,setNewsS]=useState("idle");
 
@@ -200,7 +202,7 @@ export default function Home(){
     setScalpS("loading");setScalp(null);
     try{
       const res=await fetch("/api/scalp",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({symbol:asset.symbol,capital,riskPct:0.01})});
+        body:JSON.stringify({symbol:scalpAsset.symbol,capital,riskPct:0.01})});
       const d=await res.json();
       if(!d.ok){setScalpS("error");return;}
       setScalp(d);setScalpS("done");
@@ -233,7 +235,7 @@ export default function Home(){
   const loadNews=async()=>{
     setNewsS("loading");setNews(null);
     try{
-      const res=await fetch("/api/news?symbol="+asset.symbol);
+      const res=await fetch("/api/news?symbol="+newsAsset.symbol);
       const d=await res.json();
       if(d.ok){setNews(d);setNewsS("done");}
       else{setNewsS("error");}
@@ -272,7 +274,7 @@ export default function Home(){
   useEffect(()=>{if(mode==="pulse") loadPulse();},[mode]);
   useEffect(()=>{if(mode==="portfolio") loadPortfolio();},[mode]);
   useEffect(()=>{if(mode==="tax") loadTax();},[mode]);
-  useEffect(()=>{if(mode==="news") loadNews();},[mode,asset]);
+  useEffect(()=>{if(mode==="news") loadNews();},[mode,newsAsset]);
 
   const handleSearchSelect=(result)=>{
     setAsset({symbol:result.symbol,label:result.name,emoji:"🔍",color:"#818cf8",cgId:result.cgId});
@@ -538,11 +540,11 @@ export default function Home(){
 
             <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
               {DEFAULT_ASSETS.filter(a=>a.type==="crypto").map(a=>(
-                <button key={a.symbol} onClick={()=>setAsset(a)} style={{
+                <button key={a.symbol} onClick={()=>setScalpAsset(a)} style={{
                   padding:"7px 11px",borderRadius:8,
-                  border:`1.5px solid ${asset.symbol===a.symbol?a.color:"#0c1e3a"}`,
-                  background:asset.symbol===a.symbol?`${a.color}18`:"#080d1a",
-                  color:asset.symbol===a.symbol?a.color:"#475569",
+                  border:`1.5px solid ${scalpAsset.symbol===a.symbol?a.color:"#0c1e3a"}`,
+                  background:scalpAsset.symbol===a.symbol?`${a.color}18`:"#080d1a",
+                  color:scalpAsset.symbol===a.symbol?a.color:"#475569",
                   fontSize:11,fontWeight:700,cursor:"pointer"}}>
                   {a.emoji} {a.label}
                 </button>
@@ -553,7 +555,7 @@ export default function Home(){
               width:"100%",padding:14,borderRadius:12,border:"none",
               background:scalpStatus==="loading"?"#0c1e3a":"linear-gradient(135deg,#f59e0b,#d97706)",
               color:scalpStatus==="loading"?"#334155":"#000",fontSize:14,fontWeight:800,cursor:"pointer"}}>
-              {scalpStatus==="loading"?"⏳ Analyzing 15M + 1H...":"⚡ Run Scalp Analysis"}
+              {scalpStatus==="loading"?`⏳ Analyzing ${scalpAsset.label} 15M + 1H...`:`⚡ Scalp ${scalpAsset.emoji} ${scalpAsset.label}`}
             </button>
 
             {scalpStatus==="error"&&(
@@ -806,9 +808,9 @@ export default function Home(){
           <div style={{display:"flex",flexDirection:"column",gap:12}}>
             <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
               {DEFAULT_ASSETS.map(a=>(
-                <button key={a.symbol} onClick={()=>setAsset(a)} style={{
-                  padding:"7px 11px",borderRadius:8,border:`1.5px solid ${asset.symbol===a.symbol?a.color:"#0c1e3a"}`,
-                  background:asset.symbol===a.symbol?`${a.color}18`:"#080d1a",color:asset.symbol===a.symbol?a.color:"#475569",
+                <button key={a.symbol} onClick={()=>{setNewsAsset(a);setNews(null);setNewsS("idle");}} style={{
+                  padding:"7px 11px",borderRadius:8,border:`1.5px solid ${newsAsset.symbol===a.symbol?a.color:"#0c1e3a"}`,
+                  background:newsAsset.symbol===a.symbol?`${a.color}18`:"#080d1a",color:newsAsset.symbol===a.symbol?a.color:"#475569",
                   fontSize:11,fontWeight:700,cursor:"pointer"}}>{a.emoji} {a.label}</button>
               ))}
             </div>
@@ -817,7 +819,7 @@ export default function Home(){
               width:"100%",padding:14,borderRadius:12,border:"none",
               background:newsS==="loading"?"#0c1e3a":"linear-gradient(135deg,#0f766e,#0d9488)",
               color:newsS==="loading"?"#334155":"#fff",fontSize:14,fontWeight:800,cursor:"pointer"}}>
-              {newsS==="loading"?"⏳ Loading News...":"📰 Load News & Sentiment"}
+              {newsS==="loading"?`⏳ Loading ${newsAsset.label} News...`:`📰 Load ${newsAsset.emoji} ${newsAsset.label} News & Analysis`}
             </button>
 
             {newsS==="error"&&(
