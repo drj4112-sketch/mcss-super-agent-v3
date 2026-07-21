@@ -202,7 +202,7 @@ export default function Home(){
       const res=await fetch("/api/scalp",{method:"POST",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({symbol:asset.symbol,capital,riskPct:0.01})});
       const d=await res.json();
-      if(!d.ok) throw new Error(d.error);
+      if(!d.ok){setScalpS("error");return;}
       setScalp(d);setScalpS("done");
     }catch(e){setScalpS("error");}
   };
@@ -231,9 +231,13 @@ export default function Home(){
   };
 
   const loadNews=async()=>{
-    setNewsS("loading");
-    try{const res=await fetch("/api/news?symbol="+asset.symbol);const d=await res.json();if(d.ok){setNews(d);setNewsS("done");}}
-    catch(e){setNewsS("error");}
+    setNewsS("loading");setNews(null);
+    try{
+      const res=await fetch("/api/news?symbol="+asset.symbol);
+      const d=await res.json();
+      if(d.ok){setNews(d);setNewsS("done");}
+      else{setNewsS("error");}
+    }catch(e){setNewsS("error");}
   };
 
   const loadJournal=async()=>{
@@ -424,11 +428,11 @@ export default function Home(){
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
                   <Card label="Live Price" value={`$${market.price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:6})}`} color="#818cf8" mono/>
                   <Card label="24H Change" value={`${market.changePct>=0?"▲":"▼"}${Math.abs(market.changePct).toFixed(2)}%`} color={cc}/>
-                  <Card label="RSI (14)" value={market.rsi ?? "N/A"} color={market.rsi<=35?"#22c55e":market.rsi>=65?"#ef4444":"#f59e0b"} sub={market.rsi<=35?"Oversold ✓":market.rsi>=65?"Overbought":"Neutral"}/>
+                  <Card label="RSI (14)" value={market.rsi ?? "N/A"} color={!market.rsi?"#64748b":market.rsi<=35?"#22c55e":market.rsi>=65?"#ef4444":"#f59e0b"} sub={!market.rsi?"":market.rsi<=35?"Oversold ✓":market.rsi>=65?"Overbought":"Neutral"}/>
                   <Card label="ATR (14)" value={market.atr?`$${market.atr.toFixed(4)}`:"N/A"} color="#64748b" mono sm sub="Stop sizing"/>
                   <Card label="EMA 50" value={market.ema50?`$${market.ema50.toFixed(2)}`:"N/A"} color="#64748b" mono sm/>
                   <Card label="EMA 200" value={market.ema200?`$${market.ema200.toFixed(2)}`:"N/A"} color="#475569" mono sm/>
-                  <Card label="MACD" value={market.macd?market.macd.toFixed(4):"N/A"} color={market.macd>0?"#22c55e":"#ef4444"} mono sm/>
+                  <Card label="MACD" value={market.macd?market.macd.toFixed(4):"N/A"} color={!market.macd?"#64748b":market.macd>0?"#22c55e":"#ef4444"} mono sm/>
                   <Card label="Source" value={market.source} color="#64748b" sm/>
                 </div>
 
@@ -551,6 +555,13 @@ export default function Home(){
               color:scalpStatus==="loading"?"#334155":"#000",fontSize:14,fontWeight:800,cursor:"pointer"}}>
               {scalpStatus==="loading"?"⏳ Analyzing 15M + 1H...":"⚡ Run Scalp Analysis"}
             </button>
+
+            {scalpStatus==="error"&&(
+              <div style={{background:"#150808",borderRadius:10,padding:12,border:"1px solid #ef444320"}}>
+                <div style={{fontSize:12,color:"#f87171",fontWeight:700}}>⚠️ Scalp analysis failed</div>
+                <div style={{fontSize:10,color:"#7f1d1d",marginTop:4}}>Gold (XAU) does not support scalping — use Swing mode instead. For crypto, try BTC, ETH, SOL, XRP, ADA or DOGE.</div>
+              </div>
+            )}
 
             {scalpStatus==="done"&&scalpData&&(
               <>
@@ -808,6 +819,13 @@ export default function Home(){
               color:newsS==="loading"?"#334155":"#fff",fontSize:14,fontWeight:800,cursor:"pointer"}}>
               {newsS==="loading"?"⏳ Loading News...":"📰 Load News & Sentiment"}
             </button>
+
+            {newsS==="error"&&(
+              <div style={{background:"#150808",borderRadius:10,padding:12,border:"1px solid #ef444320"}}>
+                <div style={{fontSize:12,color:"#f87171",fontWeight:700}}>⚠️ News feed unavailable</div>
+                <div style={{fontSize:10,color:"#7f1d1d",marginTop:4}}>CryptoPanic may be rate limiting. The AI analysis will still run using Fear & Greed and market data. Try again in 30 seconds.</div>
+              </div>
+            )}
 
             {newsS==="done"&&news&&(
               <>
