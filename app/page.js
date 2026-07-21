@@ -426,29 +426,29 @@ export default function Home(){
                 )}
 
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
-                  <Card label="Live Price" value={`$${market.price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:6})}`} color="#818cf8" mono/>
-                  <Card label="24H Change" value={`${market.changePct>=0?"▲":"▼"}${Math.abs(market.changePct).toFixed(2)}%`} color={cc}/>
-                  <Card label="RSI (14)" value={market.rsi ?? "N/A"} color={!market.rsi?"#64748b":market.rsi<=35?"#22c55e":market.rsi>=65?"#ef4444":"#f59e0b"} sub={!market.rsi?"":market.rsi<=35?"Oversold ✓":market.rsi>=65?"Overbought":"Neutral"}/>
+                  <Card label="Live Price" value={market.price?`$${market.price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:6})}`:"N/A"} color="#818cf8" mono/>
+                  <Card label="24H Change" value={market.changePct!=null?`${market.changePct>=0?"▲":"▼"}${Math.abs(market.changePct).toFixed(2)}%`:"N/A"} color={cc}/>
+                  <Card label="RSI (14)" value={market.rsi!=null?String(market.rsi):"N/A"} color={!market.rsi?"#64748b":market.rsi<=35?"#22c55e":market.rsi>=65?"#ef4444":"#f59e0b"} sub={!market.rsi?"":market.rsi<=35?"Oversold ✓":market.rsi>=65?"Overbought":"Neutral"}/>
                   <Card label="ATR (14)" value={market.atr?`$${market.atr.toFixed(4)}`:"N/A"} color="#64748b" mono sm sub="Stop sizing"/>
                   <Card label="EMA 50" value={market.ema50?`$${market.ema50.toFixed(2)}`:"N/A"} color="#64748b" mono sm/>
                   <Card label="EMA 200" value={market.ema200?`$${market.ema200.toFixed(2)}`:"N/A"} color="#475569" mono sm/>
-                  <Card label="MACD" value={market.macd?market.macd.toFixed(4):"N/A"} color={!market.macd?"#64748b":market.macd>0?"#22c55e":"#ef4444"} mono sm/>
-                  <Card label="Source" value={market.source} color="#64748b" sm/>
+                  <Card label="MACD" value={market.macd!=null?market.macd.toFixed(4):"N/A"} color={!market.macd?"#64748b":market.macd>0?"#22c55e":"#ef4444"} mono sm/>
+                  <Card label="Source" value={market.source||"N/A"} color="#64748b" sm/>
                 </div>
 
                 <div style={{display:"flex",gap:10,alignItems:"center",background:"#080d1a",borderRadius:10,padding:12,border:"1px solid #0c1e3a"}}>
                   <Ring score={analysis.score} max={analysis.maxScore}/>
                   <div style={{flex:1}}>
                     <div style={{fontSize:10,color:"#334155",textTransform:"uppercase",marginBottom:6}}>Fibonacci Levels</div>
-                    {[["0.382",analysis.fib.fib382],["0.500",analysis.fib.fib500],["0.618",analysis.fib.fib618]].map(([n,v])=>(
-                      <div key={n} style={{display:"flex",justifyContent:"space-between",padding:"2px 0",color:analysis.nearest.name===n?"#818cf8":"#334155"}}>
-                        <span style={{fontSize:10}}>Fib {n} {analysis.nearest.name===n?"◀":""}</span>
-                        <span style={{fontSize:10,fontFamily:"monospace",fontWeight:analysis.nearest.name===n?800:400}}>${v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:4})}</span>
+                    {analysis.fib&&[["0.382",analysis.fib.fib382],["0.500",analysis.fib.fib500],["0.618",analysis.fib.fib618]].map(([n,v])=>(
+                      <div key={n} style={{display:"flex",justifyContent:"space-between",padding:"2px 0",color:analysis.nearest?.name===n?"#818cf8":"#334155"}}>
+                        <span style={{fontSize:10}}>Fib {n} {analysis.nearest?.name===n?"◀":""}</span>
+                        <span style={{fontSize:10,fontFamily:"monospace",fontWeight:analysis.nearest?.name===n?800:400}}>${v?v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:4}):"N/A"}</span>
                       </div>
                     ))}
                     <div style={{display:"flex",justifyContent:"space-between",marginTop:4,paddingTop:4,borderTop:"1px solid #0c1e3a"}}>
                       <span style={{fontSize:9,color:"#334155"}}>Swing H/L</span>
-                      <span style={{fontSize:9,fontFamily:"monospace",color:"#64748b"}}>${market.swingHigh?.toFixed(2)} / ${market.swingLow?.toFixed(2)}</span>
+                      <span style={{fontSize:9,fontFamily:"monospace",color:"#64748b"}}>{market.swingHigh?"$"+market.swingHigh.toFixed(2):"N/A"} / {market.swingLow?"$"+market.swingLow.toFixed(2):"N/A"}</span>
                     </div>
                   </div>
                 </div>
@@ -460,10 +460,10 @@ export default function Home(){
                       {analysis.isPartial&&<span style={{color:"#f59e0b",marginLeft:8}}>Partial — confirm first</span>}
                     </div>
                     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
-                      <Card label="Entry (Limit)" value={`$${analysis.entry.toFixed(4)}`} color="#818cf8" mono sub="Place limit order here"/>
-                      <Card label="Risk Amount" value={`$${analysis.riskAmt.toFixed(2)}`} color="#f59e0b" sub={`${analysis.riskPctLabel}% of $${capital}`}/>
-                      <Card label="Stop Loss ⛔" value={`$${analysis.stopLoss.toFixed(4)}`} color="#ef4444" mono sub="ATR × 1.5"/>
-                      <Card label="Take Profit 🎯" value={`$${analysis.takeProfit.toFixed(4)}`} color="#22c55e" mono sub={`+$${analysis.potentialProfit.toFixed(2)}`}/>
+                      <Card label="Entry (Limit)" value={analysis.entry?`$${analysis.entry.toFixed(4)}`:"N/A"} color="#818cf8" mono sub="Place limit order here"/>
+                      <Card label="Risk Amount" value={analysis.riskAmt?`$${analysis.riskAmt.toFixed(2)}`:"N/A"} color="#f59e0b" sub={`${analysis.riskPctLabel||2}% of $${capital}`}/>
+                      <Card label="Stop Loss ⛔" value={analysis.stopLoss?`$${analysis.stopLoss.toFixed(4)}`:"N/A"} color="#ef4444" mono sub="ATR × 1.5"/>
+                      <Card label="Take Profit 🎯" value={analysis.takeProfit?`$${analysis.takeProfit.toFixed(4)}`:"N/A"} color="#22c55e" mono sub={analysis.potentialProfit?`+$${analysis.potentialProfit.toFixed(2)}`:""}/>
                     </div>
                     <div style={{marginTop:8,background:"#030810",borderRadius:8,padding:"10px 12px"}}>
                       <div style={{fontSize:9,color:"#334155",textTransform:"uppercase",marginBottom:7}}>📈 Scaled Exit Strategy</div>
@@ -471,7 +471,7 @@ export default function Home(){
                         {[["TP1 (1:1)",analysis.tp1,"#86efac","Exit 30%"],["TP2 (1:2)",analysis.tp2,"#4ade80","Exit 30%"],["TP3 (1:3)",analysis.takeProfit,"#22c55e","Exit 40%"]].map(([l,v,c,s])=>(
                           <div key={l} style={{textAlign:"center"}}>
                             <div style={{fontSize:9,color:"#334155",textTransform:"uppercase"}}>{l}</div>
-                            <div style={{fontSize:11,fontWeight:800,color:c,fontFamily:"monospace",marginTop:2}}>${v.toLocaleString(undefined,{maximumFractionDigits:4})}</div>
+                            <div style={{fontSize:11,fontWeight:800,color:c,fontFamily:"monospace",marginTop:2}}>{v?`$${v.toLocaleString(undefined,{maximumFractionDigits:4})}`:"N/A"}</div>
                             <div style={{fontSize:9,color:"#334155"}}>{s}</div>
                           </div>
                         ))}
@@ -484,7 +484,7 @@ export default function Home(){
                       </div>
                       <div style={{background:"#030810",borderRadius:8,padding:"8px 10px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                         <span style={{fontSize:10,color:"#334155"}}>Position Size</span>
-                        <span style={{fontSize:11,fontWeight:800,color:"#a5b4fc",fontFamily:"monospace"}}>{analysis.posSize.toFixed(6)}</span>
+                        <span style={{fontSize:11,fontWeight:800,color:"#a5b4fc",fontFamily:"monospace"}}>{analysis.posSize?analysis.posSize.toFixed(6):"N/A"}</span>
                       </div>
                     </div>
                   </div>
