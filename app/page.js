@@ -189,6 +189,16 @@ export default function Home(){
       setLog(prev=>[{t:new Date().toLocaleTimeString("en-US",{timeZone:"America/New_York"}),
         asset:asset.label,emoji:asset.emoji||asset.symbol,price:d.market.price,
         grade:d.analysis.grade,valid:d.analysis.isValid,rsi:d.market.rsi,score:d.analysis.score},...prev.slice(0,29)]);
+      // Browser notification for valid signals
+      if(d.analysis.isValid && Notification.permission === "granted") {
+        new Notification(`⚡ MCSS VALID — ${asset.label}`, {
+          body: `Grade ${d.analysis.grade} · Entry $${d.analysis.entry?.toFixed(2)} · TP $${d.analysis.takeProfit?.toFixed(2)}`,
+          icon: "/favicon.ico"
+        });
+      }
+      if(d.analysis.isValid && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
     }catch(e){setErr(e.message);setStatus("error");}
   },[asset,capital,riskPct,tradeMode]);
 
@@ -461,8 +471,31 @@ export default function Home(){
                       🎯 Execution Blueprint — 1:3 R:R · {tradeMode.toUpperCase()}
                       {analysis.isPartial&&<span style={{color:"#f59e0b",marginLeft:8}}>Partial — confirm first</span>}
                     </div>
-                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7}}>
-                      <Card label="Entry (Limit)" value={analysis.entry?`$${analysis.entry.toFixed(4)}`:"N/A"} color="#818cf8" mono sub="Place limit order here"/>
+                  <div style={{background:"#030810",borderRadius:8,padding:"10px 12px",border:"1px solid #0c1e3a",marginBottom:8}}>
+                    <div style={{fontSize:9,color:"#334155",textTransform:"uppercase",marginBottom:6}}>📍 Price vs Entry Gap</div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
+                      <div style={{textAlign:"center"}}>
+                        <div style={{fontSize:9,color:"#334155"}}>Current Price</div>
+                        <div style={{fontSize:12,fontWeight:800,color:"#818cf8",fontFamily:"monospace"}}>${market.price?.toLocaleString(undefined,{maximumFractionDigits:2})}</div>
+                      </div>
+                      <div style={{textAlign:"center"}}>
+                        <div style={{fontSize:9,color:"#334155"}}>Entry Target</div>
+                        <div style={{fontSize:12,fontWeight:800,color:"#f59e0b",fontFamily:"monospace"}}>${analysis.entry?.toLocaleString(undefined,{maximumFractionDigits:2})}</div>
+                      </div>
+                      <div style={{textAlign:"center"}}>
+                        <div style={{fontSize:9,color:"#334155"}}>Gap</div>
+                        <div style={{fontSize:12,fontWeight:800,color:market.price>analysis.entry?"#22c55e":"#ef4444",fontFamily:"monospace"}}>
+                          {market.price&&analysis.entry?`${(((analysis.entry-market.price)/market.price)*100).toFixed(2)}%`:"N/A"}
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{fontSize:10,color:"#475569",marginTop:8,lineHeight:1.6}}>
+                      {market.price&&analysis.entry&&market.price>analysis.entry
+                        ? `⏳ Price needs to drop ${(((market.price-analysis.entry)/market.price)*100).toFixed(2)}% to reach entry. Place a limit order at $${analysis.entry?.toFixed(2)} and wait. Do NOT buy at current price.`
+                        : `✅ Price is at or below entry target. Setup is active — entry is valid now.`
+                      }
+                    </div>
+                  </div>
                       <Card label="Risk Amount" value={analysis.riskAmt?`$${analysis.riskAmt.toFixed(2)}`:"N/A"} color="#f59e0b" sub={`${analysis.riskPctLabel||2}% of $${capital}`}/>
                       <Card label="Stop Loss ⛔" value={analysis.stopLoss?`$${analysis.stopLoss.toFixed(4)}`:"N/A"} color="#ef4444" mono sub="ATR × 1.5"/>
                       <Card label="Take Profit 🎯" value={analysis.takeProfit?`$${analysis.takeProfit.toFixed(4)}`:"N/A"} color="#22c55e" mono sub={analysis.potentialProfit?`+$${analysis.potentialProfit.toFixed(2)}`:""}/>
